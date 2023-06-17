@@ -13,12 +13,49 @@ class _ExpensesPageState extends State<ExpensesPage> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
+  final expensesService = ExpensesService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Mis gatos"),
+      ),
       body: Center(
-        child: Text("Gastos"),
+        child: FutureBuilder(
+          future: expensesService.getMyExpenses(),
+          builder: (_, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.connectionState == ConnectionState.done) {
+              final data = snapshot.data;
+              if (data != null) {
+                return ListView(
+                  children: [
+                    ...data
+                        .map(
+                          (spent) => ListTile(
+                            title: Text(spent.description),
+                            subtitle: Text('${spent.createAt}'),
+                            leading: Text('${spent.amount.toStringAsFixed(2)}'),
+                          ),
+                        )
+                        .toList(),
+                  ],
+                );
+              }
+            } else {
+              return Center(
+                child: Text("Algo salio mal"),
+              );
+            }
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -59,7 +96,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState?.validate() ?? false) {
-                            final expensesService = ExpensesService();
                             try {
                               await expensesService.saveSpent(
                                   description: _descriptionController.text,
@@ -71,6 +107,11 @@ class _ExpensesPageState extends State<ExpensesPage> {
                                     content: Text("Gasto guardado"),
                                   ),
                                 );
+
+                                setState(() {});
+
+                                _descriptionController.clear();
+                                _amountController.clear();
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(

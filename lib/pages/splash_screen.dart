@@ -20,8 +20,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> checkAuthenticationStatus() async {
     final authenticationService = AthenticationService();
 
-    await authenticationService.googleLogOut();
-
     final isLoggedIn = await authenticationService.isLoggedIn();
 
     if (context.mounted) {
