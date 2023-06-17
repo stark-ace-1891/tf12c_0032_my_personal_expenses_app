@@ -7,4 +7,18 @@ class LocalUser {
     this.name,
     this.photoUrl,
   });
+
+  factory LocalUser.fromJson(Map<String, dynamic> json) {
+    return LocalUser(
+      id: json["id"],
+      name: json["name"],
+      photoUrl: json["photoUrl"],
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'photoUrl': photoUrl,
+    };
+  }
 }
