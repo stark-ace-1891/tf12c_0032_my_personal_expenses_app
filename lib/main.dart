@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:tf12c_0032_my_personal_expenses_app/firebase_options.dart';
 import 'package:tf12c_0032_my_personal_expenses_app/pages/login_screen.dart';
 import 'package:tf12c_0032_my_personal_expenses_app/pages/splash_screen.dart';
+import 'package:tf12c_0032_my_personal_expenses_app/services/firebase_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  await FirebaseNotificationService().initNotifications();
   runApp(const MyApp());
 }
 
