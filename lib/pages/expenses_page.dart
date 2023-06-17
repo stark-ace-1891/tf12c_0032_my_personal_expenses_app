@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:tf12c_0032_my_personal_expenses_app/services/expenses_service.dart';
 
@@ -32,18 +33,28 @@ class _ExpensesPageState extends State<ExpensesPage> {
             } else if (snapshot.connectionState == ConnectionState.done) {
               final data = snapshot.data;
               if (data != null) {
-                return ListView(
-                  children: [
-                    ...data
-                        .map(
-                          (spent) => ListTile(
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    await expensesService.getMyExpenses();
+                    setState(() {});
+                  },
+                  child: ListView(
+                    children: [
+                      ...data.map(
+                        (spent) {
+                          final dateFormat = DateFormat('d, MMM y - H:m')
+                              .format(spent.createAt);
+                          return ListTile(
                             title: Text(spent.description),
-                            subtitle: Text('${spent.createAt}'),
-                            leading: Text('${spent.amount.toStringAsFixed(2)}'),
-                          ),
-                        )
-                        .toList(),
-                  ],
+                            subtitle: Text('${dateFormat}'),
+                            leading:
+                                Text('S/. ${spent.amount.toStringAsFixed(2)}'),
+                            minLeadingWidth: 48,
+                          );
+                        },
+                      ).toList(),
+                    ],
+                  ),
                 );
               }
             } else {
