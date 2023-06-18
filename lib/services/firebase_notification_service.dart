@@ -12,23 +12,28 @@ class FirebaseNotificationService {
   final cloudFirestore = FirebaseFirestore.instance;
   final firebaseAuth = FirebaseAuth.instance;
 
+  final Future<void> Function(RemoteMessage) onListen;
+
+  FirebaseNotificationService({required this.onListen});
+
   Future<void> initNotifications() async {
     final notificationSettings = await firebaseMessaging.requestPermission();
+
     if (notificationSettings.authorizationStatus ==
         AuthorizationStatus.authorized) {
       final token = await firebaseMessaging.getToken();
+
       final userId = firebaseAuth.currentUser?.uid;
 
       //Recobe una top levele function, es decir una funcion fuer ade la clase
       //onBackgroundMessage muestra noyificaciones si la aplicacion esta en segundo plano
       FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
-
+      FirebaseMessaging.onMessage.listen(onListen);
       if (userId != null) {
         await cloudFirestore.collection('users').doc(userId).update({
           'fcmToken': token,
         });
       }
-      print(token);
     }
   }
 }
